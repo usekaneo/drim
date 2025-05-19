@@ -21,7 +21,6 @@ var (
 	disableRegister bool
 )
 
-// Color functions
 var (
 	success = color.New(color.FgGreen).SprintFunc()
 	info    = color.New(color.FgCyan).SprintFunc()
@@ -90,19 +89,16 @@ You can specify your domain and other configuration options.`,
 			}
 		}
 
-		// If HTTPS is enabled but proxy is none, disable HTTPS
 		if useHttps && proxyType == "none" {
 			fmt.Printf("%s HTTPS is only available with Traefik or Nginx. Disabling HTTPS.\n", warning("⚠"))
 			useHttps = false
 		}
 
-		// If JWT token is not provided, generate a random one
 		if jwtToken == "" {
 			jwtToken = generateRandomToken(32)
 			fmt.Printf("%s Generated JWT token: %s\n", info("ℹ"), jwtToken)
 		}
 
-		// Create the Docker Compose file based on the proxy type
 		switch proxyType {
 		case "traefik":
 			createTraefikComposeFile()
@@ -115,7 +111,6 @@ You can specify your domain and other configuration options.`,
 			createBasicComposeFile()
 		}
 
-		// Start the containers
 		startContainers()
 	},
 }
@@ -123,7 +118,6 @@ You can specify your domain and other configuration options.`,
 func init() {
 	rootCmd.AddCommand(deployCmd)
 
-	// Define flags for the deploy command
 	deployCmd.Flags().StringVarP(&domain, "domain", "d", "", "Your domain name (e.g., kaneo.example.com)")
 	deployCmd.Flags().StringVarP(&jwtToken, "jwt", "j", "", "JWT access token (will be generated if not provided)")
 	deployCmd.Flags().StringVarP(&proxyType, "proxy", "p", "", "Proxy type: traefik, nginx, or none")
@@ -132,7 +126,6 @@ func init() {
 }
 
 func generateRandomToken(length int) string {
-	// Use crypto/rand for secure random token generation
 	b := make([]byte, length)
 	_, err := rand.Read(b)
 	if err != nil {
@@ -173,11 +166,9 @@ volumes:
 }
 
 func createTraefikComposeFile() {
-	// Clean up the domain input - remove any protocol prefixes
 	domain = strings.TrimPrefix(domain, "http://")
 	domain = strings.TrimPrefix(domain, "https://")
 
-	// For Traefik, we use a subdomain for the API
 	apiDomain := "api-" + domain
 
 	protocol := "http"
@@ -190,7 +181,6 @@ func createTraefikComposeFile() {
 		disableRegistrationValue = "true"
 	}
 
-	// Create the Traefik compose file
 	content := `services:
   traefik:
     image: "traefik:v3.3"
@@ -299,7 +289,6 @@ volumes:
 }
 
 func createNginxComposeFile() {
-	// Clean up the domain input - remove any protocol prefixes
 	domain = strings.TrimPrefix(domain, "http://")
 	domain = strings.TrimPrefix(domain, "https://")
 
@@ -351,7 +340,6 @@ volumes:
 	writeToFile("compose.yml", content)
 	fmt.Printf("%s Created Nginx Docker Compose file: %s\n", success("✓"), bold("compose.yml"))
 
-	// Create Nginx configuration file
 	nginxContent := `server {
     listen 80;
     server_name ` + domain + `;
@@ -398,7 +386,6 @@ volumes:
 	writeToFile("nginx.conf", nginxContent)
 	fmt.Printf("%s Created Nginx configuration file: %s\n", success("✓"), bold("nginx.conf"))
 
-	// Add HTTPS configuration if enabled
 	if useHttps {
 		fmt.Printf("%s HTTPS is enabled. You will need to configure SSL certificates for Nginx.\n", info("ℹ"))
 		fmt.Printf("%s You can use Certbot to obtain Let's Encrypt certificates:\n", info("ℹ"))

@@ -28,7 +28,6 @@ This command will create a backup of the database in the specified directory.`,
 func init() {
 	rootCmd.AddCommand(backupCmd)
 
-	// Define flags for the backup command
 	backupCmd.Flags().StringVarP(&backupDir, "dir", "d", "./backups", "Directory to store backups")
 }
 
@@ -37,7 +36,6 @@ func backupDatabase() {
 	success := color.New(color.FgGreen).SprintFunc()
 	errorC := color.New(color.FgRed).SprintFunc()
 
-	// Create backup directory if it doesn't exist
 	if _, err := os.Stat(backupDir); os.IsNotExist(err) {
 		err := os.MkdirAll(backupDir, 0755)
 		if err != nil {
@@ -46,14 +44,11 @@ func backupDatabase() {
 		}
 	}
 
-	// Generate backup filename with timestamp
 	timestamp := time.Now().Format("20060102-150405")
 	backupFile := filepath.Join(backupDir, fmt.Sprintf("kaneo-backup-%s.db", timestamp))
 
 	fmt.Printf("%s Creating backup of Kaneo database...\n", info("ℹ"))
 
-	// Use docker cp to copy the database file from the container
-	// First, we need to get the container ID
 	containerIDCmd := exec.Command("docker", "compose", "ps", "-q", "backend")
 	containerIDBytes, err := containerIDCmd.Output()
 	if err != nil {
@@ -66,7 +61,6 @@ func backupDatabase() {
 		return
 	}
 
-	// Copy the database file from the container
 	copyCmd := exec.Command("docker", "cp",
 		fmt.Sprintf("%s:/app/apps/api/data/kaneo.db", containerID[:12]),
 		backupFile)

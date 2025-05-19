@@ -28,7 +28,6 @@ You can specify a service name (backend or frontend) or view all logs.`,
 func init() {
 	rootCmd.AddCommand(logsCmd)
 
-	// Define flags for the logs command
 	logsCmd.Flags().BoolVarP(&follow, "follow", "f", false, "Follow log output")
 	logsCmd.Flags().StringVarP(&tail, "tail", "t", "all", "Number of lines to show from the end of the logs")
 }
@@ -48,7 +47,6 @@ func viewLogs(args []string) {
 
 	fmt.Printf("%s Viewing logs for %s...\n\n", info("ℹ"), service)
 
-	// Build the docker compose logs command
 	dockerArgs := []string{"compose", "logs"}
 
 	if follow {

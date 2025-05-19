@@ -15,14 +15,12 @@ var rootCmd = &cobra.Command{
 an open source project management platform focused on simplicity and efficiency.
 It simplifies the deployment process using Docker and Docker Compose.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		// Skip logo for completion command
 		if cmd.Name() != "completion" && cmd.Name() != "__complete" {
 			printLogo()
 		}
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -31,7 +29,6 @@ func Execute() {
 }
 
 func init() {
-	// Here you can define flags and configuration settings
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 

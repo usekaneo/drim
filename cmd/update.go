@@ -30,7 +30,6 @@ func updateKaneo() {
 
 	fmt.Printf("%s Updating Kaneo to the latest version...\n", info("ℹ"))
 
-	// Pull the latest images
 	fmt.Printf("%s Pulling latest images...\n", info("ℹ"))
 	pullCmd := exec.Command("docker", "compose", "pull")
 	pullCmd.Stdout = os.Stdout
@@ -41,7 +40,6 @@ func updateKaneo() {
 		return
 	}
 
-	// Restart the containers with the new images
 	fmt.Printf("%s Restarting containers with new images...\n", info("ℹ"))
 	upCmd := exec.Command("docker", "compose", "up", "-d", "--force-recreate")
 	upCmd.Stdout = os.Stdout

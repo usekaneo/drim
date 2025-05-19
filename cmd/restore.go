@@ -27,7 +27,6 @@ This command will restore the database from the specified backup file.`,
 func init() {
 	rootCmd.AddCommand(restoreCmd)
 
-	// Define flags for the restore command
 	restoreCmd.Flags().StringVarP(&backupFile, "file", "f", "", "Backup file to restore from")
 	restoreCmd.MarkFlagRequired("file")
 }
@@ -38,13 +37,11 @@ func restoreDatabase() {
 	errorC := color.New(color.FgRed).SprintFunc()
 	warning := color.New(color.FgYellow).SprintFunc()
 
-	// Check if backup file exists
 	if _, err := os.Stat(backupFile); os.IsNotExist(err) {
 		fmt.Printf("%s Backup file not found: %s\n", errorC("✗"), backupFile)
 		return
 	}
 
-	// Get absolute path to backup file
 	absBackupFile, err := filepath.Abs(backupFile)
 	if err != nil {
 		fmt.Printf("%s Error getting absolute path: %v\n", errorC("✗"), err)
@@ -69,7 +66,6 @@ func restoreDatabase() {
 		return
 	}
 
-	// Get the container ID
 	containerIDCmd := exec.Command("docker", "compose", "ps", "-q", "backend")
 	containerIDBytes, err := containerIDCmd.Output()
 	if err != nil {
@@ -82,7 +78,6 @@ func restoreDatabase() {
 		return
 	}
 
-	// Copy the backup file to the container
 	fmt.Printf("%s Restoring database from backup...\n", info("ℹ"))
 	copyCmd := exec.Command("docker", "cp",
 		absBackupFile,
@@ -93,7 +88,6 @@ func restoreDatabase() {
 		return
 	}
 
-	// Start the containers again
 	fmt.Printf("%s Starting Kaneo containers...\n", info("ℹ"))
 	startCmd := exec.Command("docker", "compose", "start", "backend")
 	err = startCmd.Run()
