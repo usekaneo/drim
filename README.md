@@ -159,8 +159,13 @@ make build-all
 
 MIT License. See [LICENSE](LICENSE) for details.
 
+## Migrating from Existing Setup
+
+If you have an existing Kaneo installation and want to migrate to drim without losing data, see the [Migration Guide](MIGRATION.md).
+
 ## Links
 
 - [Kaneo](https://kaneo.app)
 - [Kaneo Documentation](https://kaneo.app/docs)
+- [Migration Guide](MIGRATION.md)
 - [Report Issues](https://github.com/usekaneo/drim/issues)
