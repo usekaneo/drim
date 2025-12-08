@@ -4,6 +4,14 @@ One-click deployment tool for self-hosted Kaneo instances.
 
 ## Installation
 
+### Quick Install (Recommended)
+
+```bash
+curl -fsSL https://drim.kaneo.app/install.sh | sh
+```
+
+### Manual Install
+
 Download the latest binary for your platform:
 
 ```bash
@@ -21,6 +29,19 @@ sudo mv drim /usr/local/bin/
 curl -L https://github.com/usekaneo/drim/releases/latest/download/drim_Darwin_x86_64 -o drim
 chmod +x drim
 sudo mv drim /usr/local/bin/
+```
+
+### Install Script Options
+
+```bash
+# Silent installation
+curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --silent
+
+# Install and run setup automatically
+curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --setup
+
+# Install and setup with domain
+curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo.example.com
 ```
 
 ## Quick Start
