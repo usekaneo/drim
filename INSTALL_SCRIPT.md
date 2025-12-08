@@ -7,23 +7,23 @@ The `install.sh` script provides a one-line installation for drim.
 ### Basic Installation
 
 ```bash
-curl -fsSL https://drim.kaneo.app/install.sh | sh
+curl -fsSL https://assets.kaneo.app/install.sh | sh
 ```
 
 ### With Options
 
 ```bash
 # Silent mode (no output)
-curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --silent
+curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --silent
 
 # Auto-run setup after install
-curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --setup
+curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --setup
 
 # Install and setup with domain
-curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo.example.com
+curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo.example.com
 
 # Combine options
-curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --silent --setup --domain=kaneo.example.com
+curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --silent --setup --domain=kaneo.example.com
 ```
 
 ## Options
@@ -51,7 +51,7 @@ To host this script on Cloudflare R2:
 
 6. Users can then install with:
    ```bash
-   curl -fsSL https://drim.kaneo.app/install.sh | sh
+   curl -fsSL https://assets.kaneo.app/install.sh | sh
    ```
 
 ## What It Does

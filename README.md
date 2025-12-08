@@ -2,103 +2,144 @@
 
 One-click deployment tool for self-hosted Kaneo instances.
 
+All you need. Nothing you don't.
+
 ## Installation
 
-### Quick Install (Recommended)
+Install drim with a single command:
 
 ```bash
-curl -fsSL https://drim.kaneo.app/install.sh | sh
+curl -fsSL https://assets.kaneo.app/install.sh | sh
 ```
 
-### Manual Install
-
-Download the latest binary for your platform:
-
-```bash
-# Linux
-curl -L https://github.com/usekaneo/drim/releases/latest/download/drim_Linux_x86_64 -o drim
-chmod +x drim
-sudo mv drim /usr/local/bin/
-
-# macOS (Apple Silicon)
-curl -L https://github.com/usekaneo/drim/releases/latest/download/drim_Darwin_arm64 -o drim
-chmod +x drim
-sudo mv drim /usr/local/bin/
-
-# macOS (Intel)
-curl -L https://github.com/usekaneo/drim/releases/latest/download/drim_Darwin_x86_64 -o drim
-chmod +x drim
-sudo mv drim /usr/local/bin/
-```
-
-### Install Script Options
-
-```bash
-# Silent installation
-curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --silent
-
-# Install and run setup automatically
-curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --setup
-
-# Install and setup with domain
-curl -fsSL https://drim.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo.example.com
-```
+Or download the binary manually from [releases](https://github.com/usekaneo/drim/releases/latest).
 
 ## Quick Start
 
-Deploy Kaneo with a single command:
+Deploy Kaneo in seconds:
 
 ```bash
 drim setup
 ```
 
-You'll be prompted for your domain (optional). If you skip it, Kaneo will be accessible at `http://localhost`.
+That's it. Your Kaneo instance is now running.
 
-For production with HTTPS, provide your domain when prompted. Make sure your domain's DNS A record points to your server.
+### Local Development
+
+```bash
+drim setup
+# Press Enter when prompted for domain
+# Access at http://localhost
+```
+
+### Production Deployment
+
+```bash
+drim setup
+# Enter your domain when prompted (e.g., kaneo.example.com)
+# Access at https://your-domain.com (HTTPS automatic)
+```
+
+Make sure your domain's DNS A record points to your server before setup.
 
 ## Commands
 
-- `drim setup` - Deploy Kaneo
-- `drim start` - Start services
-- `drim stop` - Stop services
-- `drim restart` - Restart services
-- `drim upgrade` - Update Kaneo to latest version
-- `drim update` - Update drim CLI to latest version
-- `drim configure` - Edit configuration
-- `drim uninstall` - Remove Kaneo
+```bash
+drim setup        # Deploy Kaneo
+drim start        # Start services
+drim stop         # Stop services
+drim restart      # Restart services
+drim upgrade      # Update Kaneo to latest version
+drim update       # Update drim CLI to latest version
+drim configure    # Edit configuration
+drim uninstall    # Remove Kaneo
+```
 
 ## What Gets Installed
 
-- PostgreSQL database
-- Kaneo API (`ghcr.io/usekaneo/api:latest`)
-- Kaneo Web (`ghcr.io/usekaneo/web:latest`)
-- Caddy reverse proxy with automatic HTTPS
+When you run `drim setup`, the following services are deployed:
+
+- **PostgreSQL 16** - Database
+- **Kaneo API** - Backend service
+- **Kaneo Web** - Frontend interface
+- **Caddy** - Reverse proxy with automatic HTTPS
+
+All services run in Docker containers with proper networking and health checks.
 
 ## Configuration
 
-After setup, you can configure Kaneo by editing the `.env` file:
+### Edit Environment Variables
 
 ```bash
 drim configure
 ```
 
-See the [official Kaneo documentation](https://kaneo.app/docs/installation/environment-variables) for all available environment variables.
+This opens `.env` in your default editor. After saving, services are restarted automatically.
 
 ### Optional Features
 
-Edit `.env` and uncomment variables to enable:
+Uncomment variables in `.env` to enable:
 
-- **GitHub OAuth**: Set `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`
-- **Google OAuth**: Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
-- **Email Auth**: Configure SMTP settings
+**GitHub Authentication**
+```env
+GITHUB_CLIENT_ID=your_client_id
+GITHUB_CLIENT_SECRET=your_client_secret
+```
+
+**Google Authentication**
+```env
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+```
+
+**Email Authentication (SMTP)**
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-password
+```
+
+See [Kaneo documentation](https://kaneo.app/docs/installation/environment-variables) for all available options.
 
 ## Requirements
 
-- Docker 20.10 or later
+- Docker 20.10+
 - Docker Compose V2
-- Linux, macOS, or Windows with WSL
+- 2GB RAM minimum
+- 10GB disk space
+
+**Supported Platforms:** Linux, macOS, Windows (WSL)
 
 drim will attempt to install Docker automatically on supported Linux distributions.
+
+## Examples
+
+### Silent Installation
+
+```bash
+curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --silent
+```
+
+### Install and Setup in One Command
+
+```bash
+curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo.example.com
+```
+
+### Update Everything
+
+```bash
+drim update    # Update drim CLI
+drim upgrade   # Update Kaneo
+```
+
+### Check Logs
+
+```bash
+docker compose logs -f
+docker compose logs -f api
+```
 
 ## Building from Source
 
@@ -120,5 +161,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Links
 
+- [Kaneo](https://kaneo.app)
 - [Kaneo Documentation](https://kaneo.app/docs)
 - [Report Issues](https://github.com/usekaneo/drim/issues)
