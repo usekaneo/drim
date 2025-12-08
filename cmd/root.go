@@ -8,6 +8,11 @@ import (
 	"github.com/usekaneo/drim/pkg/banner"
 )
 
+var (
+	version   string
+	buildTime string
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "drim",
 	Short: "One-Click Self-Hosted Kaneo Deployment Tool",
@@ -20,6 +25,12 @@ as a reverse proxy with automatic HTTPS.`,
 		banner.Print()
 		cmd.Help()
 	},
+}
+
+func SetVersion(v, bt string) {
+	version = v
+	buildTime = bt
+	rootCmd.Version = fmt.Sprintf("%s (built: %s)", v, bt)
 }
 
 func Execute() {

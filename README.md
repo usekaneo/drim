@@ -41,7 +41,8 @@ For production with HTTPS, provide your domain when prompted. Make sure your dom
 - `drim start` - Start services
 - `drim stop` - Stop services
 - `drim restart` - Restart services
-- `drim upgrade` - Update to latest version
+- `drim upgrade` - Update Kaneo to latest version
+- `drim update` - Update drim CLI to latest version
 - `drim configure` - Edit configuration
 - `drim uninstall` - Remove Kaneo
 
