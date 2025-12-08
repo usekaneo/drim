@@ -8,12 +8,24 @@ import (
 )
 
 func GenerateEnvFile(config *Config) error {
-	clientURL := "http://localhost"
-	apiURL := "http://localhost/api"
+	var clientURL, apiURL string
 
-	if config.Domain != "" {
-		clientURL = fmt.Sprintf("https://%s", config.Domain)
-		apiURL = fmt.Sprintf("https://%s/api", config.Domain)
+	if config.UseCaddy {
+		if config.Domain != "" {
+			clientURL = fmt.Sprintf("https://%s", config.Domain)
+			apiURL = fmt.Sprintf("https://%s/api", config.Domain)
+		} else {
+			clientURL = "http://localhost"
+			apiURL = "http://localhost/api"
+		}
+	} else {
+		clientURL = "http://localhost:5173"
+		apiURL = "http://localhost:1337"
+
+		if config.Domain != "" {
+			clientURL = fmt.Sprintf("https://%s", config.Domain)
+			apiURL = fmt.Sprintf("https://%s/api", config.Domain)
+		}
 	}
 
 	content := fmt.Sprintf(`KANEO_CLIENT_URL=%s
