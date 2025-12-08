@@ -9,11 +9,7 @@ func GenerateCaddyfile(config *Config) error {
 	var content string
 
 	if config.Domain != "" {
-		content = fmt.Sprintf(`{
-    auto_https on
-}
-
-%s {
+		content = fmt.Sprintf(`%s {
     reverse_proxy /api* http://api:1337
     reverse_proxy /*    http://web:5173
     encode gzip
