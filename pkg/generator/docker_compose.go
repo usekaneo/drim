@@ -1,0 +1,73 @@
+package generator
+
+import (
+	"os"
+)
+
+const dockerComposeTemplate = `services:
+  postgres:
+    image: postgres:16-alpine
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - kaneo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ghcr.io/usekaneo/api:latest
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - kaneo
+
+  web:
+    image: ghcr.io/usekaneo/web:latest
+    env_file: .env
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - kaneo
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+      - web
+    networks:
+      - kaneo
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  kaneo:
+    driver: bridge
+`
+
+func GenerateDockerCompose(config *Config) error {
+	return os.WriteFile("docker-compose.yml", []byte(dockerComposeTemplate), 0644)
+}

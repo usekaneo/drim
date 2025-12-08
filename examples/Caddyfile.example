@@ -1,0 +1,15 @@
+{
+    auto_https on
+}
+
+kaneo.example.com {
+    reverse_proxy /api* http://api:1337
+    reverse_proxy /*    http://web:5173
+    encode gzip
+}
+
+:80 {
+    reverse_proxy /api* http://api:1337
+    reverse_proxy /*    http://web:5173
+}
+
