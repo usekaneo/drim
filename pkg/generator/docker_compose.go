@@ -4,7 +4,11 @@ import (
 	"os"
 )
 
-const dockerComposeTemplate = `services:
+func GenerateDockerCompose(config *Config) error {
+	var content string
+
+	if config.UseCaddy {
+		content = `services:
   postgres:
     image: postgres:16-alpine
     env_file: .env
@@ -63,7 +67,53 @@ networks:
   kaneo:
     driver: bridge
 `
+	} else {
+		content = `services:
+  postgres:
+    image: postgres:16-alpine
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - kaneo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-func GenerateDockerCompose(config *Config) error {
-	return os.WriteFile("docker-compose.yml", []byte(dockerComposeTemplate), 0644)
+  api:
+    image: ghcr.io/usekaneo/api:latest
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "1337:1337"
+    networks:
+      - kaneo
+
+  web:
+    image: ghcr.io/usekaneo/web:latest
+    env_file: .env
+    depends_on:
+      - api
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    networks:
+      - kaneo
+
+volumes:
+  postgres_data:
+
+networks:
+  kaneo:
+    driver: bridge
+`
+	}
+
+	return os.WriteFile("docker-compose.yml", []byte(content), 0644)
 }

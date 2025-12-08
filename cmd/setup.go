@@ -53,10 +53,12 @@ var setupCmd = &cobra.Command{
 		}
 		ui.Success("Generated docker-compose.yml")
 
-		if err := generator.GenerateCaddyfile(config); err != nil {
-			return fmt.Errorf("failed to generate Caddyfile: %w", err)
+		if config.UseCaddy {
+			if err := generator.GenerateCaddyfile(config); err != nil {
+				return fmt.Errorf("failed to generate Caddyfile: %w", err)
+			}
+			ui.Success("Generated Caddyfile")
 		}
-		ui.Success("Generated Caddyfile")
 
 		if err := generator.GenerateEnvFile(config); err != nil {
 			return fmt.Errorf("failed to generate .env: %w", err)
@@ -75,11 +77,22 @@ var setupCmd = &cobra.Command{
 		}
 
 		ui.Success("\n✨ Kaneo is now running!")
-		if config.Domain != "" {
-			ui.Info(fmt.Sprintf("🌐 Access your instance at: https://%s", config.Domain))
-			ui.Info("(HTTPS certificate will be generated automatically by Caddy)")
+		if config.UseCaddy {
+			if config.Domain != "" {
+				ui.Info(fmt.Sprintf("🌐 Access your instance at: https://%s", config.Domain))
+				ui.Info("(HTTPS certificate will be generated automatically)")
+			} else {
+				ui.Info("🌐 Access your instance at: http://localhost")
+			}
 		} else {
-			ui.Info("🌐 Access your instance at: http://localhost")
+			ui.Info("🌐 Services are running:")
+			ui.Info("   • API: http://localhost:1337")
+			ui.Info("   • Web: http://localhost:5173")
+			if config.Domain != "" {
+				ui.Info(fmt.Sprintf("\n📝 Configure your reverse proxy to forward %s to these services", config.Domain))
+			} else {
+				ui.Info("\n📝 Set up your reverse proxy to forward requests to these services")
+			}
 		}
 
 		return nil

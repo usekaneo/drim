@@ -2,6 +2,7 @@ package generator
 
 type Config struct {
 	Domain       string
+	UseCaddy     bool
 	PostgresUser string
 	PostgresPass string
 	PostgresDB   string
@@ -13,6 +14,7 @@ type Config struct {
 func NewDefaultConfig() *Config {
 	return &Config{
 		Domain:       "",
+		UseCaddy:     true,
 		PostgresUser: "kaneo",
 		PostgresPass: generateRandomPassword(32),
 		PostgresDB:   "kaneo",
