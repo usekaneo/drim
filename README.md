@@ -4,6 +4,8 @@ One-click deployment tool for self-hosted Kaneo instances.
 
 All you need. Nothing you don't.
 
+![Demo](demo/demo.gif)
+
 ## Installation
 
 Install drim with a single command:
@@ -166,6 +168,6 @@ If you have an existing Kaneo installation and want to migrate to drim without l
 ## Links
 
 - [Kaneo](https://kaneo.app)
-- [Kaneo Documentation](https://kaneo.app/docs)
+- [Kaneo Documentation](https://kaneo.app/core/docs)
 - [Migration Guide](MIGRATION.md)
 - [Report Issues](https://github.com/usekaneo/drim/issues)
