@@ -35,16 +35,7 @@ func TestNewDefaultConfig(t *testing.T) {
 
 func TestGenerateDockerCompose(t *testing.T) {
 	config := NewDefaultConfig()
-
-	// Create a temporary file
-	tmpFile := "test-docker-compose.yml"
-	defer os.Remove(tmpFile)
-
-	// Override the file path for testing
-	originalFile := "docker-compose.yml"
-	defer func() {
-		os.Remove(originalFile)
-	}()
+	cleanupGeneratedFile(t, "docker-compose.yml")
 
 	err := GenerateDockerCompose(config)
 	if err != nil {
@@ -93,7 +84,7 @@ func TestGenerateDockerCompose(t *testing.T) {
 func TestGenerateDockerComposeWithoutCaddy(t *testing.T) {
 	config := NewDefaultConfig()
 	config.UseCaddy = false
-	defer os.Remove("docker-compose.yml")
+	cleanupGeneratedFile(t, "docker-compose.yml")
 
 	if err := GenerateDockerCompose(config); err != nil {
 		t.Fatalf("Failed to generate docker-compose.yml: %v", err)
@@ -157,7 +148,7 @@ func TestGenerateCaddyfile(t *testing.T) {
 			config := NewDefaultConfig()
 			config.Domain = tt.domain
 
-			defer os.Remove("Caddyfile")
+			cleanupGeneratedFile(t, "Caddyfile")
 
 			err := GenerateCaddyfile(config)
 			if err != nil {
@@ -196,7 +187,7 @@ func TestGenerateEnvFile(t *testing.T) {
 	config := NewDefaultConfig()
 	config.Domain = "kaneo.example.com"
 
-	defer os.Remove(".env")
+	cleanupGeneratedFile(t, ".env")
 
 	err := GenerateEnvFile(config)
 	if err != nil {
@@ -243,7 +234,7 @@ func TestGenerateEnvFile(t *testing.T) {
 func TestGenerateEnvFileWithoutCaddyUsesUnifiedOrigin(t *testing.T) {
 	config := NewDefaultConfig()
 	config.UseCaddy = false
-	defer os.Remove(".env")
+	cleanupGeneratedFile(t, ".env")
 
 	if err := GenerateEnvFile(config); err != nil {
 		t.Fatalf("Failed to generate .env: %v", err)
@@ -266,6 +257,15 @@ func TestGenerateEnvFileWithoutCaddyUsesUnifiedOrigin(t *testing.T) {
 	if contains(contentStr, "localhost:1337") {
 		t.Error(".env still exposes the legacy API origin")
 	}
+}
+
+func cleanupGeneratedFile(t *testing.T, path string) {
+	t.Helper()
+	t.Cleanup(func() {
+		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+			t.Errorf("Failed to remove generated file %s: %v", path, err)
+		}
+	})
 }
 
 // Helper function

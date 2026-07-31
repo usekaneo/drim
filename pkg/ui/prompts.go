@@ -38,7 +38,7 @@ func PromptSetupConfig() (*generator.Config, error) {
 			Info("Kaneo will be accessible at https://" + config.Domain)
 			Info("Make sure your domain's DNS A record points to this server's IP address")
 		} else {
-			Info("Services will be available. Configure your reverse proxy for: " + config.Domain)
+			Info("Configure your reverse proxy to forward " + config.Domain + " to Kaneo on port 5173")
 		}
 	}
 

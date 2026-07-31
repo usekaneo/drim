@@ -13,7 +13,7 @@ import (
 var setupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Deploy the entire Kaneo stack",
-	Long: `Deploys the entire stack including PostgreSQL, Kaneo API, Kaneo Web, and Caddy.
+	Long: `Deploys the entire stack including PostgreSQL, Kaneo (unified web and API), and Caddy.
 	
 - Installs Docker if missing (on supported systems)
 - Generates docker-compose.yml, Caddyfile, and .env
@@ -87,9 +87,9 @@ var setupCmd = &cobra.Command{
 		} else {
 			ui.Info("🌐 Kaneo is running at http://localhost:5173")
 			if config.Domain != "" {
-				ui.Info(fmt.Sprintf("\n📝 Configure your reverse proxy to forward %s to these services", config.Domain))
+				ui.Info(fmt.Sprintf("\n📝 Configure your reverse proxy to forward %s to Kaneo on port 5173", config.Domain))
 			} else {
-				ui.Info("\n📝 Set up your reverse proxy to forward requests to these services")
+				ui.Info("\n📝 Set up your reverse proxy to forward requests to Kaneo on port 5173")
 			}
 		}
 

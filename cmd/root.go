@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Long: `drim is a simple, fast command-line tool that lets anyone deploy 
 and manage a full Kaneo stack with a single command.
 
-It automatically sets up PostgreSQL, Kaneo API, Kaneo Web, and Caddy 
+It automatically sets up PostgreSQL, Kaneo (unified web and API), and Caddy
 as a reverse proxy with automatic HTTPS.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		banner.Print()

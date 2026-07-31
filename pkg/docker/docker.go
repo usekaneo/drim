@@ -175,12 +175,28 @@ func RemoveImages() error {
 		"caddy:2-alpine",
 	}
 
+	return removeImages(images, func(image string) ([]byte, error) {
+		return exec.Command("docker", "rmi", image).CombinedOutput()
+	})
+}
+
+func removeImages(images []string, remove func(string) ([]byte, error)) error {
 	var errors []string
 	for _, image := range images {
-		cmd := exec.Command("docker", "rmi", image)
-		if err := cmd.Run(); err != nil {
-			errors = append(errors, fmt.Sprintf("failed to remove %s: %v", image, err))
+		output, err := remove(image)
+		if err == nil {
+			continue
 		}
+
+		message := strings.TrimSpace(string(output))
+		if strings.Contains(strings.ToLower(message), "no such image") {
+			continue
+		}
+
+		if message == "" {
+			message = err.Error()
+		}
+		errors = append(errors, fmt.Sprintf("failed to remove %s: %s", image, message))
 	}
 
 	if len(errors) > 0 {
