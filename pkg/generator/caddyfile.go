@@ -10,14 +10,12 @@ func GenerateCaddyfile(config *Config) error {
 
 	if config.Domain != "" {
 		content = fmt.Sprintf(`%s {
-    reverse_proxy /api* http://api:1337
-    reverse_proxy /*    http://web:5173
+    reverse_proxy http://kaneo:5173
     encode gzip
 }
 
 :80 {
-    reverse_proxy /api* http://api:1337
-    reverse_proxy /*    http://web:5173
+    reverse_proxy http://kaneo:5173
 }
 `, config.Domain)
 	} else {
@@ -26,8 +24,7 @@ func GenerateCaddyfile(config *Config) error {
 }
 
 :80 {
-    reverse_proxy /api* http://api:1337
-    reverse_proxy /*    http://web:5173
+    reverse_proxy http://kaneo:5173
 }
 `
 	}

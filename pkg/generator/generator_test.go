@@ -67,18 +67,62 @@ func TestGenerateDockerCompose(t *testing.T) {
 	// Check for required services
 	requiredStrings := []string{
 		"postgres:",
-		"api:",
-		"web:",
+		"kaneo:",
 		"caddy:",
 		"postgres:16-alpine",
-		"ghcr.io/usekaneo/api:latest",
-		"ghcr.io/usekaneo/web:latest",
+		"ghcr.io/usekaneo/kaneo:latest",
 		"caddy:2-alpine",
 	}
 
 	for _, required := range requiredStrings {
 		if !contains(contentStr, required) {
 			t.Errorf("docker-compose.yml missing required string: %s", required)
+		}
+	}
+
+	for _, legacyImage := range []string{
+		"ghcr.io/usekaneo/api:latest",
+		"ghcr.io/usekaneo/web:latest",
+	} {
+		if contains(contentStr, legacyImage) {
+			t.Errorf("docker-compose.yml still uses legacy image: %s", legacyImage)
+		}
+	}
+}
+
+func TestGenerateDockerComposeWithoutCaddy(t *testing.T) {
+	config := NewDefaultConfig()
+	config.UseCaddy = false
+	defer os.Remove("docker-compose.yml")
+
+	if err := GenerateDockerCompose(config); err != nil {
+		t.Fatalf("Failed to generate docker-compose.yml: %v", err)
+	}
+
+	content, err := os.ReadFile("docker-compose.yml")
+	if err != nil {
+		t.Fatalf("Failed to read docker-compose.yml: %v", err)
+	}
+	contentStr := string(content)
+
+	for _, expected := range []string{
+		"kaneo:",
+		"ghcr.io/usekaneo/kaneo:latest",
+		`"5173:5173"`,
+	} {
+		if !contains(contentStr, expected) {
+			t.Errorf("docker-compose.yml missing required string: %s", expected)
+		}
+	}
+
+	for _, unexpected := range []string{
+		"caddy:",
+		"ghcr.io/usekaneo/api:latest",
+		"ghcr.io/usekaneo/web:latest",
+		`"1337:1337"`,
+	} {
+		if contains(contentStr, unexpected) {
+			t.Errorf("docker-compose.yml contains unexpected string: %s", unexpected)
 		}
 	}
 }
@@ -93,10 +137,8 @@ func TestGenerateCaddyfile(t *testing.T) {
 			name:   "With domain",
 			domain: "kaneo.example.com",
 			expected: []string{
-				"auto_https on",
 				"kaneo.example.com",
-				"reverse_proxy /api*",
-				"reverse_proxy /*",
+				"reverse_proxy http://kaneo:5173",
 			},
 		},
 		{
@@ -105,8 +147,7 @@ func TestGenerateCaddyfile(t *testing.T) {
 			expected: []string{
 				"auto_https off",
 				":80",
-				"reverse_proxy /api*",
-				"reverse_proxy /*",
+				"reverse_proxy http://kaneo:5173",
 			},
 		},
 	}
@@ -139,6 +180,12 @@ func TestGenerateCaddyfile(t *testing.T) {
 			for _, expected := range tt.expected {
 				if !contains(contentStr, expected) {
 					t.Errorf("Caddyfile missing expected string: %s", expected)
+				}
+			}
+
+			for _, legacyTarget := range []string{"http://api:1337", "http://web:5173"} {
+				if contains(contentStr, legacyTarget) {
+					t.Errorf("Caddyfile still targets legacy service: %s", legacyTarget)
 				}
 			}
 		})
@@ -190,6 +237,34 @@ func TestGenerateEnvFile(t *testing.T) {
 	// Verify domain is included
 	if !contains(contentStr, "DOMAIN=kaneo.example.com") {
 		t.Error(".env does not contain the correct domain")
+	}
+}
+
+func TestGenerateEnvFileWithoutCaddyUsesUnifiedOrigin(t *testing.T) {
+	config := NewDefaultConfig()
+	config.UseCaddy = false
+	defer os.Remove(".env")
+
+	if err := GenerateEnvFile(config); err != nil {
+		t.Fatalf("Failed to generate .env: %v", err)
+	}
+
+	content, err := os.ReadFile(".env")
+	if err != nil {
+		t.Fatalf("Failed to read .env: %v", err)
+	}
+	contentStr := string(content)
+
+	for _, expected := range []string{
+		"KANEO_CLIENT_URL=http://localhost:5173",
+		"KANEO_API_URL=http://localhost:5173/api",
+	} {
+		if !contains(contentStr, expected) {
+			t.Errorf(".env missing unified origin: %s", expected)
+		}
+	}
+	if contains(contentStr, "localhost:1337") {
+		t.Error(".env still exposes the legacy API origin")
 	}
 }
 

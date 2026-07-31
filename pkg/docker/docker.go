@@ -167,6 +167,8 @@ func ComposeDown(removeVolumes bool) error {
 
 func RemoveImages() error {
 	images := []string{
+		"ghcr.io/usekaneo/kaneo:latest",
+		// Keep removing the legacy split images for existing drim installs.
 		"ghcr.io/usekaneo/api:latest",
 		"ghcr.io/usekaneo/web:latest",
 		"postgres:16-alpine",

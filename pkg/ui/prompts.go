@@ -18,7 +18,7 @@ func PromptSetupConfig() (*generator.Config, error) {
 
 	if !config.UseCaddy {
 		Warning("You chose not to use a reverse proxy.")
-		Info("API will be exposed on port 1337, Web on port 5173")
+		Info("Kaneo will be exposed on port 5173")
 	}
 
 	domain, err := Prompt("Enter your domain (e.g., kaneo.example.com) [optional]:")
@@ -31,9 +31,7 @@ func PromptSetupConfig() (*generator.Config, error) {
 		if config.UseCaddy {
 			Info("No domain specified. Kaneo will be accessible at http://localhost")
 		} else {
-			Info("No domain specified. Services will be available at:")
-			Info("  - API: http://localhost:1337")
-			Info("  - Web: http://localhost:5173")
+			Info("No domain specified. Kaneo will be available at http://localhost:5173")
 		}
 	} else {
 		if config.UseCaddy {

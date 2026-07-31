@@ -85,9 +85,7 @@ var setupCmd = &cobra.Command{
 				ui.Info("🌐 Access your instance at: http://localhost")
 			}
 		} else {
-			ui.Info("🌐 Services are running:")
-			ui.Info("   • API: http://localhost:1337")
-			ui.Info("   • Web: http://localhost:5173")
+			ui.Info("🌐 Kaneo is running at http://localhost:5173")
 			if config.Domain != "" {
 				ui.Info(fmt.Sprintf("\n📝 Configure your reverse proxy to forward %s to these services", config.Domain))
 			} else {
