@@ -13,9 +13,12 @@ services:
       timeout: 5s
       retries: 5
 
+  # The unified Kaneo image serves both the web app and API on port 5173.
   kaneo:
     image: ghcr.io/usekaneo/kaneo:latest
     env_file: .env
+    expose:
+      - "5173"
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,6 +41,8 @@ services:
     networks:
       - kaneo
 
+# Set KANEO_CLIENT_URL to the public URL in .env. For local use, set it to
+# http://localhost (Caddy) or http://localhost:5173 without Caddy.
 volumes:
   postgres_data:
   caddy_data:
