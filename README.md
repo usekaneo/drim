@@ -62,8 +62,7 @@ drim uninstall    # Remove Kaneo
 When you run `drim setup`, the following services are deployed:
 
 - **PostgreSQL 16** - Database
-- **Kaneo API** - Backend service
-- **Kaneo Web** - Frontend interface
+- **Kaneo** - Unified web and API service
 - **Caddy** - Reverse proxy with automatic HTTPS
 
 All services run in Docker containers with proper networking and health checks.
@@ -140,7 +139,7 @@ drim upgrade   # Update Kaneo
 
 ```bash
 docker compose logs -f
-docker compose logs -f api
+docker compose logs -f kaneo
 ```
 
 ## Building from Source

@@ -23,21 +23,12 @@ func GenerateDockerCompose(config *Config) error {
       timeout: 5s
       retries: 5
 
-  api:
-    image: ghcr.io/usekaneo/api:latest
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
     env_file: .env
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - kaneo
-
-  web:
-    image: ghcr.io/usekaneo/web:latest
-    env_file: .env
-    depends_on:
-      - api
     restart: unless-stopped
     networks:
       - kaneo
@@ -53,8 +44,7 @@ func GenerateDockerCompose(config *Config) error {
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - api
-      - web
+      - kaneo
     networks:
       - kaneo
 
@@ -83,23 +73,12 @@ networks:
       timeout: 5s
       retries: 5
 
-  api:
-    image: ghcr.io/usekaneo/api:latest
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
     env_file: .env
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
-    ports:
-      - "1337:1337"
-    networks:
-      - kaneo
-
-  web:
-    image: ghcr.io/usekaneo/web:latest
-    env_file: .env
-    depends_on:
-      - api
     restart: unless-stopped
     ports:
       - "5173:5173"
