@@ -31,8 +31,14 @@ That's it. Your Kaneo instance is now running.
 ```bash
 drim setup
 # Press Enter when prompted for domain
-# Access at http://localhost
 ```
+
+`drim setup` prints the access URL once it finishes. For local use:
+
+- With the default Caddy reverse proxy: <http://localhost> (Caddy binds host port 80).
+- Without Caddy (answer "No" to the reverse-proxy prompt): <http://localhost:5173> (Kaneo container port published to the host).
+
+The unified Kaneo image serves both the web app and the API on port `5173` inside the `kaneo` Docker network. Caddy reaches it at `http://kaneo:5173`; with no proxy, drim publishes `5173:5173` so the host can reach it directly.
 
 ### Production Deployment
 
@@ -62,10 +68,10 @@ drim uninstall    # Remove Kaneo
 When you run `drim setup`, the following services are deployed:
 
 - **PostgreSQL 16** - Database
-- **Kaneo** - Unified web and API service
+- **Kaneo** (`ghcr.io/usekaneo/kaneo:latest`) - Unified web and API service on port `5173`
 - **Caddy** - Reverse proxy with automatic HTTPS
 
-All services run in Docker containers with proper networking and health checks.
+The Kaneo image contains both the web app and API. All services run in Docker containers on a shared network. PostgreSQL exposes a health check that Kaneo waits for before starting; Caddy and the Kaneo container themselves have no explicit health check in the generated compose.
 
 ## Configuration
 
@@ -79,29 +85,29 @@ This opens `.env` in your default editor. After saving, services are restarted a
 
 ### Optional Features
 
-Uncomment variables in `.env` to enable:
+drim writes the required variables to `.env` when you run `drim setup`. To enable optional features, add the matching variables to `.env` (for example with `drim configure`):
 
 **GitHub Authentication**
 ```env
-GITHUB_CLIENT_ID=your_client_id
-GITHUB_CLIENT_SECRET=your_client_secret
-```
-
-**Google Authentication**
-```env
-GOOGLE_CLIENT_ID=your_client_id
-GOOGLE_CLIENT_SECRET=your_client_secret
+GITHUB_OAUTH_CLIENT_ID=your_client_id
+GITHUB_OAUTH_CLIENT_SECRET=your_client_secret
 ```
 
 **Email Authentication (SMTP)**
 ```env
-SMTP_HOST=smtp.gmail.com
+SMTP_HOST=smtp.example.com
 SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
+SMTP_USER=your-email@example.com
 SMTP_PASSWORD=your-password
+SMTP_FROM=your-email@example.com
 ```
 
-See [Kaneo documentation](https://kaneo.app/docs/installation/environment-variables) for all available options.
+**Redis Pub/Sub (optional)**
+```env
+REDIS_URL=redis://your-redis-host:6379
+```
+
+See [`examples/.env.example`](examples/.env.example) for a complete reference of optional variables, Kaneo's [environment variable example](https://github.com/usekaneo/kaneo/blob/main/.env.sample), and the [Kaneo documentation](https://kaneo.app/docs/core) for details on each setting.
 
 ## Requirements
 
@@ -109,6 +115,7 @@ See [Kaneo documentation](https://kaneo.app/docs/installation/environment-variab
 - Docker Compose V2
 - 2GB RAM minimum
 - 10GB disk space
+- A public DNS record for production deployments
 
 **Supported Platforms:** Linux, macOS, Windows (WSL)
 
@@ -167,6 +174,6 @@ If you have an existing Kaneo installation and want to migrate to drim without l
 ## Links
 
 - [Kaneo](https://kaneo.app)
-- [Kaneo Documentation](https://kaneo.app/core/docs)
+- [Kaneo Documentation](https://kaneo.app/docs/core)
 - [Migration Guide](MIGRATION.md)
 - [Report Issues](https://github.com/usekaneo/drim/issues)
