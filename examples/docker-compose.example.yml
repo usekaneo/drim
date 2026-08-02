@@ -14,6 +14,11 @@ services:
       retries: 5
 
   # The unified Kaneo image serves both the web app and API on port 5173.
+  # `expose` makes 5173 reachable only on the `kaneo` Docker network, which is
+  # the correct setup when Caddy (or any containerized reverse proxy on the same
+  # network) proxies requests to `http://kaneo:5173`. To reach Kaneo directly
+  # without Caddy, generate the compose with the reverse-proxy prompt set to
+  # "No"; drim then publishes 5173 to the host (see MIGRATION.md Step 11).
   kaneo:
     image: ghcr.io/usekaneo/kaneo:latest
     env_file: .env
@@ -41,8 +46,10 @@ services:
     networks:
       - kaneo
 
-# Set KANEO_CLIENT_URL to the public URL in .env. For local use, set it to
-# http://localhost (Caddy) or http://localhost:5173 without Caddy.
+# Set KANEO_CLIENT_URL to the public URL in `.env`. With this compose file
+# (Caddy on the `kaneo` network, no host port published) use:
+#   http://localhost     -> Caddy on the host (ports 80/443)
+#   http://kaneo:5173    -> another container on the `kaneo` network
 volumes:
   postgres_data:
   caddy_data:

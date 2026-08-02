@@ -31,10 +31,14 @@ That's it. Your Kaneo instance is now running.
 ```bash
 drim setup
 # Press Enter when prompted for domain
-# Access at http://localhost:5173
 ```
 
-The unified Kaneo container serves the web app and API through port `5173`.
+`drim setup` prints the access URL once it finishes. For local use:
+
+- With the default Caddy reverse proxy: <http://localhost> (Caddy binds host port 80).
+- Without Caddy (answer "No" to the reverse-proxy prompt): <http://localhost:5173> (Kaneo container port published to the host).
+
+The unified Kaneo image serves both the web app and the API on port `5173` inside the `kaneo` Docker network. Caddy reaches it at `http://kaneo:5173`; with no proxy, drim publishes `5173:5173` so the host can reach it directly.
 
 ### Production Deployment
 
@@ -67,7 +71,7 @@ When you run `drim setup`, the following services are deployed:
 - **Kaneo** (`ghcr.io/usekaneo/kaneo:latest`) - Unified web and API service on port `5173`
 - **Caddy** - Reverse proxy with automatic HTTPS
 
-The Kaneo image contains both the web app and API. All services run in Docker containers with a shared network and health checks.
+The Kaneo image contains both the web app and API. All services run in Docker containers on a shared network. PostgreSQL exposes a health check that Kaneo waits for before starting; Caddy and the Kaneo container themselves have no explicit health check in the generated compose.
 
 ## Configuration
 
@@ -81,7 +85,7 @@ This opens `.env` in your default editor. After saving, services are restarted a
 
 ### Optional Features
 
-Uncomment variables in `.env` to enable:
+drim writes the required variables to `.env` when you run `drim setup`. To enable optional features, add the matching variables to `.env` (for example with `drim configure`):
 
 **GitHub Authentication**
 ```env
@@ -103,7 +107,7 @@ SMTP_FROM=your-email@example.com
 REDIS_URL=redis://your-redis-host:6379
 ```
 
-See Kaneo's [environment variable example](https://github.com/usekaneo/kaneo/blob/main/.env.sample) and [documentation](https://kaneo.app/docs/core) for required and optional settings.
+See [`examples/.env.example`](examples/.env.example) for a complete reference of optional variables, Kaneo's [environment variable example](https://github.com/usekaneo/kaneo/blob/main/.env.sample), and the [Kaneo documentation](https://kaneo.app/docs/core) for details on each setting.
 
 ## Requirements
 
