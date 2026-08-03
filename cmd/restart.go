@@ -15,6 +15,16 @@ var restartCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ui.Info("Restarting Kaneo services...")
 
+		force, err := cmd.Flags().GetBool("force")
+		if err == nil && force {
+			ui.Info("Force restarting services...")
+			if err := docker.ComposeUpD(); err != nil {
+				return fmt.Errorf("failed to force restart services: %w", err)
+			}
+			ui.Success("✨ Services force restarted successfully!")
+			return nil
+		}
+
 		if err := docker.ComposeRestart(); err != nil {
 			return fmt.Errorf("failed to restart services: %w", err)
 		}
