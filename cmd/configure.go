@@ -38,17 +38,26 @@ After saving, services are restarted automatically.`,
 			return fmt.Errorf("failed to open editor: %w", err)
 		}
 
-		shouldRestart, err := ui.Confirm("Configuration updated. Restart services to apply changes?")
+		shouldRestart, err := ui.Choose("Configuration updated. Restart services to apply changes?", []string{"Yes", "Force", "No"})
 		if err != nil {
 			return err
 		}
 
-		if shouldRestart {
+		switch shouldRestart {
+		case "Yes":
 			ui.Info("Restarting services...")
 			if err := docker.ComposeRestart(); err != nil {
 				return fmt.Errorf("failed to restart services: %w", err)
 			}
 			ui.Success("✨ Services restarted successfully!")
+		case "Force":
+			ui.Info("Force restarting services...")
+			if err := docker.ComposeUpD(); err != nil {
+				return fmt.Errorf("failed to force restart services: %w", err)
+			}
+			ui.Success("✨ Services force restarted successfully!")
+		case "No":
+			ui.Info("Services not restarted.")
 		}
 
 		return nil
