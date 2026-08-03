@@ -16,20 +16,24 @@ var restartCmd = &cobra.Command{
 		ui.Info("Restarting Kaneo services...")
 
 		force, err := cmd.Flags().GetBool("force")
+		if err != nil {
+			ui.Warning(fmt.Sprintf("Could not parse --force flag (%v). Falling back to standard restart.", err))
+		}
+
+		successMessage := "✨ Kaneo services restarted successfully!"
 		if err == nil && force {
 			ui.Info("Force restarting services...")
-			if err := docker.ComposeUpD(); err != nil {
+			if err := docker.ComposeUp(); err != nil {
 				return fmt.Errorf("failed to force restart services: %w", err)
 			}
-			ui.Success("✨ Services force restarted successfully!")
-			return nil
+			successMessage = "✨ Kaneo services force restarted successfully!"
+		} else {
+			if err := docker.ComposeRestart(); err != nil {
+				return fmt.Errorf("failed to restart services: %w", err)
+			}
 		}
 
-		if err := docker.ComposeRestart(); err != nil {
-			return fmt.Errorf("failed to restart services: %w", err)
-		}
-
-		ui.Success("✨ Kaneo services restarted successfully!")
+		ui.Success(successMessage)
 		return nil
 	},
 }

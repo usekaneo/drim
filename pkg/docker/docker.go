@@ -154,13 +154,6 @@ func ComposeRestart() error {
 	return cmd.Run()
 }
 
-func ComposeUpD() error {
-	cmd := exec.Command("docker", "compose", "up", "-d")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
-}
-
 func ComposeDown(removeVolumes bool) error {
 	args := []string{"compose", "down"}
 	if removeVolumes {
