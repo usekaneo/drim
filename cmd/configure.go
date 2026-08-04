@@ -38,26 +38,32 @@ After saving, services are restarted automatically.`,
 			return fmt.Errorf("failed to open editor: %w", err)
 		}
 
-		shouldRestart, err := ui.Choose("Configuration updated. Restart services to apply changes?", []string{"Yes", "Force", "No"})
+		force, err := cmd.Flags().GetBool("force")
+		if err != nil {
+			ui.Warning(fmt.Sprintf("Could not parse --force flag (%v). Falling back to standard restart.", err))
+		}
+
+		shouldRestart, err := ui.Confirm("Configuration updated. Restart services to apply changes?")
 		if err != nil {
 			return err
 		}
 
-		switch shouldRestart {
-		case "Yes":
-			ui.Info("Restarting services...")
-			if err := docker.ComposeRestart(); err != nil {
-				return fmt.Errorf("failed to restart services: %w", err)
+		if shouldRestart {
+
+			if force {
+				ui.Info("Force restarting services...")
+				if err := docker.ComposeUp(); err != nil {
+					return fmt.Errorf("failed to force restart services: %w", err)
+				}
+			} else {
+				ui.Info("Restarting services...")
+				if err := docker.ComposeRestart(); err != nil {
+					return fmt.Errorf("failed to restart services: %w", err)
+				}
+
 			}
+
 			ui.Success("✨ Services restarted successfully!")
-		case "Force":
-			ui.Info("Force restarting services...")
-			if err := docker.ComposeUp(); err != nil {
-				return fmt.Errorf("failed to force restart services: %w", err)
-			}
-			ui.Success("✨ Services force restarted successfully!")
-		case "No":
-			ui.Info("Services not restarted.")
 		}
 
 		return nil
@@ -65,5 +71,6 @@ After saving, services are restarted automatically.`,
 }
 
 func init() {
+	configureCmd.Flags().Bool("force", false, "Run compose up -d")
 	rootCmd.AddCommand(configureCmd)
 }

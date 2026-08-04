@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -50,20 +49,4 @@ func Confirm(message string) (bool, error) {
 	}
 	response = strings.ToLower(response)
 	return response == "y" || response == "yes", nil
-}
-
-func Choose(message string, options []string) (string, error) {
-	fmt.Printf("%s%s%s\n", ColorCyan, message, ColorReset)
-	for i, option := range options {
-		fmt.Printf("%s[%d] %s%s\n", ColorCyan, i+1, option, ColorReset)
-	}
-	choice, err := Prompt("Enter the number of your choice:")
-	if err != nil {
-		return "", err
-	}
-	index, err := strconv.Atoi(choice)
-	if err != nil || index < 1 || index > len(options) {
-		return "", fmt.Errorf("invalid choice")
-	}
-	return options[index-1], nil
 }
