@@ -32,6 +32,14 @@ var setupCmd = &cobra.Command{
 				return fmt.Errorf("failed to install Docker: %w", err)
 			}
 			ui.Success("Docker installed successfully!")
+
+			added, err := docker.AddCurrentUserToDockerGroup()
+			if err != nil {
+				return fmt.Errorf("failed to configure Docker access: %w", err)
+			}
+			if added {
+				return fmt.Errorf("Docker access was enabled for your user. Log out and back in, then rerun 'drim setup'")
+			}
 		} else {
 			ui.Success("Docker is already installed")
 		}
