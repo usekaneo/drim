@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/user"
 	"runtime"
 	"strings"
 )
@@ -29,6 +30,47 @@ func Install() error {
 	default:
 		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
+}
+
+func dockerGroupUser(sudoUser, username string, euid int) string {
+	if sudoUser == "root" {
+		return ""
+	}
+	if sudoUser != "" {
+		return sudoUser
+	}
+	if euid == 0 || username == "root" {
+		return ""
+	}
+	return username
+}
+
+func addUserToDockerGroup(username string, run func(string, ...string) ([]byte, error)) ([]byte, error) {
+	return run("sudo", "usermod", "-aG", "docker", username)
+}
+
+func AddCurrentUserToDockerGroup() (bool, error) {
+	currentUser, err := user.Current()
+	if err != nil {
+		return false, fmt.Errorf("determine current user: %w", err)
+	}
+
+	username := dockerGroupUser(os.Getenv("SUDO_USER"), currentUser.Username, os.Geteuid())
+	if username == "" {
+		return false, nil
+	}
+
+	output, err := addUserToDockerGroup(username, func(name string, args ...string) ([]byte, error) {
+		return exec.Command(name, args...).CombinedOutput()
+	})
+	if err != nil {
+		message := strings.TrimSpace(string(output))
+		if message != "" {
+			return false, fmt.Errorf("add %s to docker group: %w: %s", username, err, message)
+		}
+		return false, fmt.Errorf("add %s to docker group: %w", username, err)
+	}
+	return true, nil
 }
 
 func installLinux() error {
