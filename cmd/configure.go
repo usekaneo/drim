@@ -13,8 +13,9 @@ import (
 var configureCmd = &cobra.Command{
 	Use:   "configure",
 	Short: "Edit Kaneo configuration",
-	Long: `Opens .env in your default editor ($EDITOR or nano). 
-After saving, services are restarted automatically.`,
+	Long: `Opens the .env configuration file in your default editor ($EDITOR or nano). 
+After saving, choose whether to restart services to apply your changes. 
+Use --force to rebuild services completely.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		envPath := ".env"
 
