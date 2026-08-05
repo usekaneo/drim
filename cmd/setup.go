@@ -54,7 +54,7 @@ var setupCmd = &cobra.Command{
 		}
 		ui.Success("Docker Compose is available")
 
-		config, err := ui.PromptSetupConfig()
+		config, err := setupConfig(cmd)
 		if err != nil {
 			return fmt.Errorf("failed to get configuration: %w", err)
 		}
@@ -110,6 +110,31 @@ var setupCmd = &cobra.Command{
 	},
 }
 
+// setupConfig skips the prompts when the caller passed configuration as
+// flags, so setup works from a non-interactive shell such as install.sh.
+func setupConfig(cmd *cobra.Command) (*generator.Config, error) {
+	domain, err := cmd.Flags().GetString("domain")
+	if err != nil {
+		return nil, err
+	}
+	noReverseProxy, err := cmd.Flags().GetBool("no-reverse-proxy")
+	if err != nil {
+		return nil, err
+	}
+
+	if !cmd.Flags().Changed("domain") && !cmd.Flags().Changed("no-reverse-proxy") {
+		return ui.PromptSetupConfig()
+	}
+
+	config := generator.NewDefaultConfig()
+	config.Domain = domain
+	config.UseCaddy = !noReverseProxy
+	ui.Info(fmt.Sprintf("Using configuration from flags (domain: %q, reverse proxy: %t)", config.Domain, config.UseCaddy))
+	return config, nil
+}
+
 func init() {
+	setupCmd.Flags().String("domain", "", "Domain to serve Kaneo on, for example kaneo.example.com")
+	setupCmd.Flags().Bool("no-reverse-proxy", false, "Skip Caddy and expose Kaneo directly on port 5173")
 	rootCmd.AddCommand(setupCmd)
 }

@@ -143,7 +143,7 @@ if [ "${AUTO_SETUP}" = true ]; then
     fi
     
     if [ -n "${DOMAIN_NAME}" ]; then
-        echo "${DOMAIN_NAME}" | drim setup
+        drim setup --domain="${DOMAIN_NAME}"
     else
         drim setup
     fi
