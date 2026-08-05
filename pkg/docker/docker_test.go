@@ -93,3 +93,12 @@ func TestAddUserToDockerGroupPropagatesError(t *testing.T) {
 		t.Fatalf("addUserToDockerGroup() error = %v, want %v", err, wantErr)
 	}
 }
+
+func TestIsDaemonReachable(t *testing.T) {
+	// Exercises the real probe: it must not panic and must agree with itself.
+	first := IsDaemonReachable()
+	second := IsDaemonReachable()
+	if first != second {
+		t.Fatalf("IsDaemonReachable is not deterministic: %v then %v", first, second)
+	}
+}

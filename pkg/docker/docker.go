@@ -19,6 +19,15 @@ func IsComposeAvailable() bool {
 	return cmd.Run() == nil
 }
 
+// IsDaemonReachable reports whether the daemon actually answers. IsInstalled
+// only proves the binary exists, so without this a user outside the docker
+// group gets docker's raw socket permission error much later, after config
+// files have already been written.
+func IsDaemonReachable() bool {
+	cmd := exec.Command("docker", "info")
+	return cmd.Run() == nil
+}
+
 func Install() error {
 	switch runtime.GOOS {
 	case "linux":

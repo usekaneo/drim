@@ -54,6 +54,18 @@ var setupCmd = &cobra.Command{
 		}
 		ui.Success("Docker Compose is available")
 
+		if !docker.IsDaemonReachable() {
+			ui.Error("Cannot talk to the Docker daemon.")
+			if os.Geteuid() != 0 {
+				ui.Info("Add yourself to the docker group, then log out and back in:")
+				ui.Info("  sudo usermod -aG docker $USER")
+				ui.Info("Or rerun this command with sudo.")
+			} else {
+				ui.Info("Check that the Docker daemon is running: systemctl status docker")
+			}
+			return fmt.Errorf("docker daemon is not reachable")
+		}
+
 		config, err := setupConfig(cmd)
 		if err != nil {
 			return fmt.Errorf("failed to get configuration: %w", err)
