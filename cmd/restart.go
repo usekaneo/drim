@@ -18,6 +18,10 @@ var restartCmd = &cobra.Command{
 Use --recreate to recreate the containers instead, which is required for
 changes to .env to take effect.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := requireComposeContext(); err != nil {
+			return err
+		}
+
 		ui.Info("Restarting Kaneo services...")
 
 		successMessage := "✨ Kaneo services restarted successfully!"

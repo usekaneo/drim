@@ -13,6 +13,10 @@ var startCmd = &cobra.Command{
 	Short: "Start all Kaneo services",
 	Long:  `Starts all Kaneo services using Docker Compose.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := requireComposeContext(); err != nil {
+			return err
+		}
+
 		ui.Info("Starting Kaneo services...")
 
 		if err := docker.ComposeUp(); err != nil {

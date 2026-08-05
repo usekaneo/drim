@@ -17,6 +17,10 @@ This command will:
 - Pull the latest images from the registry
 - Restart services that have been updated`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := requireComposeContext(); err != nil {
+			return err
+		}
+
 		ui.Info("Pulling latest Kaneo images...")
 
 		if err := docker.ComposePull(); err != nil {
