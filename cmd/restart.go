@@ -8,25 +8,25 @@ import (
 	"github.com/usekaneo/drim/pkg/ui"
 )
 
+var recreate bool
+
 var restartCmd = &cobra.Command{
 	Use:   "restart",
 	Short: "Restart all Kaneo services",
-	Long:  `Restarts all Kaneo services using Docker Compose.`,
+	Long: `Restarts all Kaneo services using Docker Compose.
+
+Use --recreate to recreate the containers instead, which is required for
+changes to .env to take effect.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ui.Info("Restarting Kaneo services...")
 
-		force, err := cmd.Flags().GetBool("force")
-		if err != nil {
-			ui.Warning(fmt.Sprintf("Could not parse --force flag (%v). Falling back to standard restart.", err))
-		}
-
 		successMessage := "✨ Kaneo services restarted successfully!"
-		if err == nil && force {
-			ui.Info("Force restarting services...")
+		if recreate {
+			ui.Info("Recreating services to apply configuration changes...")
 			if err := docker.ComposeUp(); err != nil {
-				return fmt.Errorf("failed to force restart services: %w", err)
+				return fmt.Errorf("failed to recreate services: %w", err)
 			}
-			successMessage = "✨ Kaneo services force restarted successfully!"
+			successMessage = "✨ Kaneo services recreated successfully!"
 		} else {
 			if err := docker.ComposeRestart(); err != nil {
 				return fmt.Errorf("failed to restart services: %w", err)
@@ -39,6 +39,6 @@ var restartCmd = &cobra.Command{
 }
 
 func init() {
-	restartCmd.Flags().Bool("force", false, "Run compose up -d")
+	restartCmd.Flags().BoolVar(&recreate, "recreate", false, "Recreate containers so .env changes take effect")
 	rootCmd.AddCommand(restartCmd)
 }
