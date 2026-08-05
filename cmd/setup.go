@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/usekaneo/drim/pkg/banner"
@@ -37,8 +38,12 @@ var setupCmd = &cobra.Command{
 			if err != nil {
 				return fmt.Errorf("failed to configure Docker access: %w", err)
 			}
-			if added {
-				return fmt.Errorf("Docker access was enabled for your user. Log out and back in, then rerun 'drim setup'")
+			// Root already reaches the socket, so only an unprivileged session
+			// has to re-login before the new group membership applies.
+			if added && os.Geteuid() != 0 {
+				ui.Warning("Docker access was enabled for your user.")
+				ui.Info("Log out and back in, then rerun 'drim setup'.")
+				return nil
 			}
 		} else {
 			ui.Success("Docker is already installed")
@@ -49,7 +54,19 @@ var setupCmd = &cobra.Command{
 		}
 		ui.Success("Docker Compose is available")
 
-		config, err := ui.PromptSetupConfig()
+		if !docker.IsDaemonReachable() {
+			ui.Error("Cannot talk to the Docker daemon.")
+			if os.Geteuid() != 0 {
+				ui.Info("Add yourself to the docker group, then log out and back in:")
+				ui.Info("  sudo usermod -aG docker $USER")
+				ui.Info("Or rerun this command with sudo.")
+			} else {
+				ui.Info("Check that the Docker daemon is running: systemctl status docker")
+			}
+			return fmt.Errorf("docker daemon is not reachable")
+		}
+
+		config, err := setupConfig(cmd)
 		if err != nil {
 			return fmt.Errorf("failed to get configuration: %w", err)
 		}
@@ -105,6 +122,31 @@ var setupCmd = &cobra.Command{
 	},
 }
 
+// setupConfig skips the prompts when the caller passed configuration as
+// flags, so setup works from a non-interactive shell such as install.sh.
+func setupConfig(cmd *cobra.Command) (*generator.Config, error) {
+	domain, err := cmd.Flags().GetString("domain")
+	if err != nil {
+		return nil, err
+	}
+	noReverseProxy, err := cmd.Flags().GetBool("no-reverse-proxy")
+	if err != nil {
+		return nil, err
+	}
+
+	if !cmd.Flags().Changed("domain") && !cmd.Flags().Changed("no-reverse-proxy") {
+		return ui.PromptSetupConfig()
+	}
+
+	config := generator.NewDefaultConfig()
+	config.Domain = domain
+	config.UseCaddy = !noReverseProxy
+	ui.Info(fmt.Sprintf("Using configuration from flags (domain: %q, reverse proxy: %t)", config.Domain, config.UseCaddy))
+	return config, nil
+}
+
 func init() {
+	setupCmd.Flags().String("domain", "", "Domain to serve Kaneo on, for example kaneo.example.com")
+	setupCmd.Flags().Bool("no-reverse-proxy", false, "Skip Caddy and expose Kaneo directly on port 5173")
 	rootCmd.AddCommand(setupCmd)
 }

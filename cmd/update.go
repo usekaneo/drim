@@ -102,6 +102,3 @@ func getBinaryName() string {
 func init() {
 	rootCmd.AddCommand(updateCmd)
 }
-
-
-

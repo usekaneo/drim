@@ -44,14 +44,16 @@ jobs:
       - name: Build binaries
         run: |
           mkdir -p bin
+          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          LDFLAGS="-X main.Version=${{ steps.version.outputs.VERSION }} -X main.BuildTime=${BUILD_TIME}"
           
-          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${{ steps.version.outputs.VERSION }}" -o bin/drim_Linux_x86_64 .
-          GOOS=linux GOARCH=arm64 go build -ldflags "-X main.Version=${{ steps.version.outputs.VERSION }}" -o bin/drim_Linux_arm64 .
+          GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o bin/drim_Linux_x86_64 .
+          GOOS=linux GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o bin/drim_Linux_arm64 .
           
-          GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.Version=${{ steps.version.outputs.VERSION }}" -o bin/drim_Darwin_x86_64 .
-          GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.Version=${{ steps.version.outputs.VERSION }}" -o bin/drim_Darwin_arm64 .
+          GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o bin/drim_Darwin_x86_64 .
+          GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o bin/drim_Darwin_arm64 .
           
-          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.Version=${{ steps.version.outputs.VERSION }}" -o bin/drim_Windows_x86_64.exe .
+          GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o bin/drim_Windows_x86_64.exe .
 
       - name: Create tag
         if: github.ref == 'refs/heads/main'
