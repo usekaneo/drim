@@ -121,6 +121,9 @@ See [`examples/.env.example`](examples/.env.example) for a complete reference of
 
 drim will attempt to install Docker automatically on supported Linux distributions.
 
+> **Note:** After drim installs Docker for the first time, it adds your user to the `docker` group and stops setup.
+> Log out and back in, then run `drim setup` again so Docker Compose can access the Docker socket without `sudo`.
+
 ## Examples
 
 ### Silent Installation
