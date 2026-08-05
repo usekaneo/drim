@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/usekaneo/drim/pkg/banner"
@@ -37,8 +38,12 @@ var setupCmd = &cobra.Command{
 			if err != nil {
 				return fmt.Errorf("failed to configure Docker access: %w", err)
 			}
-			if added {
-				return fmt.Errorf("Docker access was enabled for your user. Log out and back in, then rerun 'drim setup'")
+			// Root already reaches the socket, so only an unprivileged session
+			// has to re-login before the new group membership applies.
+			if added && os.Geteuid() != 0 {
+				ui.Warning("Docker access was enabled for your user.")
+				ui.Info("Log out and back in, then rerun 'drim setup'.")
+				return nil
 			}
 		} else {
 			ui.Success("Docker is already installed")
