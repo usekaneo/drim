@@ -13,8 +13,9 @@ import (
 var configureCmd = &cobra.Command{
 	Use:   "configure",
 	Short: "Edit Kaneo configuration",
-	Long: `Opens .env in your default editor ($EDITOR or nano). 
-After saving, services are restarted automatically.`,
+	Long: `Opens the .env configuration file in your default editor ($EDITOR or nano). 
+After saving, choose whether to restart services to apply your changes. 
+Use --force to rebuild services completely.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		envPath := ".env"
 
@@ -38,16 +39,31 @@ After saving, services are restarted automatically.`,
 			return fmt.Errorf("failed to open editor: %w", err)
 		}
 
+		force, err := cmd.Flags().GetBool("force")
+		if err != nil {
+			ui.Warning(fmt.Sprintf("Could not parse --force flag (%v). Falling back to standard restart.", err))
+		}
+
 		shouldRestart, err := ui.Confirm("Configuration updated. Restart services to apply changes?")
 		if err != nil {
 			return err
 		}
 
 		if shouldRestart {
-			ui.Info("Restarting services...")
-			if err := docker.ComposeRestart(); err != nil {
-				return fmt.Errorf("failed to restart services: %w", err)
+
+			if force {
+				ui.Info("Force restarting services...")
+				if err := docker.ComposeUp(); err != nil {
+					return fmt.Errorf("failed to force restart services: %w", err)
+				}
+			} else {
+				ui.Info("Restarting services...")
+				if err := docker.ComposeRestart(); err != nil {
+					return fmt.Errorf("failed to restart services: %w", err)
+				}
+
 			}
+
 			ui.Success("✨ Services restarted successfully!")
 		}
 
@@ -56,5 +72,6 @@ After saving, services are restarted automatically.`,
 }
 
 func init() {
+	configureCmd.Flags().Bool("force", false, "Run compose up -d")
 	rootCmd.AddCommand(configureCmd)
 }
