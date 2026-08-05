@@ -14,11 +14,11 @@ var stopCmd = &cobra.Command{
 	Long:  `Stops all Kaneo services using Docker Compose.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ui.Info("Stopping Kaneo services...")
-		
+
 		if err := docker.ComposeStop(); err != nil {
 			return fmt.Errorf("failed to stop services: %w", err)
 		}
-		
+
 		ui.Success("✨ Kaneo services stopped successfully!")
 		return nil
 	},
@@ -27,7 +27,3 @@ var stopCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(stopCmd)
 }
-
-
-
-
