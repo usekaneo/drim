@@ -18,7 +18,7 @@ services:
   # the correct setup when Caddy (or any containerized reverse proxy on the same
   # network) proxies requests to `http://kaneo:5173`. To reach Kaneo directly
   # without Caddy, generate the compose with the reverse-proxy prompt set to
-  # "No"; drim then publishes 5173 to the host. See https://docs.kaneo.app/core/installation/drim-migration
+  # "No"; drim then publishes 5173 to the host. See https://kaneo.app/docs/core/installation/drim-migration
   kaneo:
     image: ghcr.io/usekaneo/kaneo:latest
     env_file: .env

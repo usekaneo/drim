@@ -32,12 +32,12 @@ curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo
 
 Full documentation lives in the Kaneo docs:
 
-- [Deploy with drim](https://docs.kaneo.app/core/installation/drim) covers every command,
+- [Deploy with drim](https://kaneo.app/docs/core/installation/drim) covers every command,
   the install script options, configuration, and requirements
-- [Migrating to drim](https://docs.kaneo.app/core/installation/drim-migration) covers moving
+- [Migrating to drim](https://kaneo.app/docs/core/installation/drim-migration) covers moving
   an existing deployment onto drim, and updating an older one to the current
   single-container layout
-- [Environment variables](https://docs.kaneo.app/core/installation/environment-variables)
+- [Environment variables](https://kaneo.app/docs/core/installation/environment-variables)
 
 ## Contributing
 
